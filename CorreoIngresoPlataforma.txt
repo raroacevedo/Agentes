@@ -1,0 +1,62 @@
+<table style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff;">
+<tbody>
+<tr>
+<td align="center" style="padding: 0;">
+<table style="width: 602px; border-collapse: collapse; border: 1px solid #cccccc; border-spacing: 0; text-align: left;">
+<tbody>
+<tr>
+<td align="center" style="padding: 20px 0 10px 0; background: #000000;"><img src="https://virtual.upb.edu.co/shared/imagenes/LogoUPB_Agentes.jpg" alt="" width="600" style="height: auto; display: block;"></td>
+</tr>
+<tr>
+<td style="padding: 36px 30px 42px 30px;">
+<table style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+<tbody>
+<tr>
+<td style="padding: 0 0 36px 0; color: #153643;">
+<h1 style="font-size: 24px; margin: 0 0 20px 0; font-family: Arial,sans-serif;">Hola {InitiatingUserFirstName}!</h1>
+<p style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">Evidenciamos que aún no has ingresado al Campus Virtual de la UPB <a rel="noopener" href="https://virtual.upb.edu.co/">https://virtual.upb.edu.co/</a>, donde estás matriculado en el curso <strong>{OrgUnitName}.</strong></p>
+<p style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">Te invitamos a ingresar y mantenerte activo en el proceso formativo.</p>
+<p style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">Recuerda que tu interacción y el cumplimiento de los compromisos académicos te acercarán a tu meta de finalización del programa.</p>
+<p style="margin: 0px 0px 12px; font-size: 16px; line-height: 24px; font-family: Arial, sans-serif;">En UPB Virtual estamos comprometidos con tu éxito académico y bienestar. Para asegurar un desarrollo fluido en tu trayectoria formativa, ofrecemos múltiples canales de comunicación abiertos para ti:</p>
+<ul>
+<li style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">Nos puedes escribir por <a rel="noopener" href="https://api.whatsapp.com/send?phone=573330333860" target="_blank">WhastApp</a></li>
+<li style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">O por correo electrónico al mail:&nbsp;<a rel="noopener" href="mailto:atencion.campusvirtual@upb.edu.co">atencion.campusvirtual@upb.edu.co</a></li>
+</ul>
+<br>
+<p style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">Cordialmente,&nbsp;<br>Equipo UPB Virtual.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+<tr>
+<td style="padding: 30px; background: #e50213;">
+<table style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; font-size: 9px; font-family: Arial,sans-serif;">
+<tbody>
+<tr>
+<td style="padding: 0px; width: 69.2592%;" align="left">
+<p style="margin: 0; font-size: 14px; line-height: 16px; font-family: Arial,sans-serif; color: #ffffff;">No respondas directamente a este correo electrónico, porque es un correo que envía la plataforma y solamente se atiende en los canales dispuestos en la parte superior.</p>
+</td>
+<td style="padding: 0px; width: 30.7408%;" align="right">
+<table style="border-collapse: collapse; border: 0; border-spacing: 0;">
+<tbody>
+<tr>
+<td style="padding: 0 0 0 10px; width: 38px;"><a rel="noopener" target="_blank" href="https://twitter.com/upbvirtual" style="color: #ffffff;"><img src="https://virtual.upb.edu.co/shared/imagenes/Twitter_76c.png" alt="Twitter" width="38" style="height: auto; display: block; border: 0;"></a></td>
+<td style="padding: 0 0 0 10px; width: 38px;"><a rel="noopener" target="_blank" href="https://www.instagram.com/upbvirtual/" style="color: #ffffff;"><img src="https://virtual.upb.edu.co/shared/imagenes/Instagram_76c.png" alt="Instagram" width="38" style="height: auto; display: block; border: 0;"></a></td>
+<td style="padding: 0 0 0 10px; width: 38px;"><a rel="noopener" target="_blank" href="https://www.facebook.com/UPBVirtual" style="color: #ffffff;"><img src="https://virtual.upb.edu.co/shared/imagenes/Facebook_76c.png" alt="Facebook" width="38" style="height: auto; display: block; border: 0;"></a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>

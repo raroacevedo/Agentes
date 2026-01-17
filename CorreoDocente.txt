@@ -1,0 +1,31 @@
+<table style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background: #ffffff;">
+<tbody>
+<tr>
+<td align="center" style="padding: 0;">
+<table style="width: 602px; border-collapse: collapse; border: 1px solid #cccccc; border-spacing: 0; text-align: left;">
+<tbody>
+<tr>
+<td align="center" style="padding: 20px 0 10px 0; background: #000000;"><img src="https://virtual.upb.edu.co/shared/imagenes/LogoUPB_Agentes.jpg" alt="" width="600" style="height: auto; display: block;"></td>
+</tr>
+<tr>
+<td style="padding: 36px 30px 42px 30px;">
+<table style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+<tbody>
+<tr>
+<td style="padding: 0 0 36px 0; color: #153643;">
+<p style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">Cordial saludo</p>
+<p style="margin: 0 0 12px 0; font-size: 16px; line-height: 24px; font-family: Arial,sans-serif;">A través de los agentes inteligentes de nuestro campus virtual, se nos notifica que el profesor <strong>{InitiatingUserFirstName}</strong>, no ha ingresado al curso <strong>{OrgUnitName} </strong>desde la fecha <strong>{LastCourseAccessDate}; </strong>por tanto, sugerimos que el profesor sea contactado si por alguna razón está experimentando dificultades para acceder o participar con el campus virtual, estamos a su entera disposición para asistirle en la resolución de cualquier inconveniente que pudiera tener.</p>
+<p style="margin: 0px 0px 12px; font-size: 16px; line-height: 24px; font-family: Arial, sans-serif;">Cordialmente,</p>
+<p style="margin: 0px 0px 12px; font-size: 16px; line-height: 24px; font-family: Arial, sans-serif;">Equipo UPBVIRTUAL.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
