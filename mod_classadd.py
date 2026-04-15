@@ -4,7 +4,7 @@ from selenium.common.exceptions import TimeoutException
 from time import sleep
 from webbrowser import Chrome
 from numpy import select, true_divide
-from pyshadow.main import Shadow
+from pyshadow.main import Shadow # type: ignore[import]
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.service import Service
@@ -22,32 +22,45 @@ import pandas as pd
 
 #crear instancia de web driver
 def crear_WebDriver():
-
     WD = Service(r"..\Chrome\chromedriver.exe")
 
     chrome_options = Options()
-    chrome_options.add_argument("--disable-extension")
+    chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--log-level=3")
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-logging", "enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
 
-    # Desactivar el gestor de contraseñas de Chrome
-    chrome_prefs = {
-        "useAutomationExtension": False,
-        "credentials_enable_service": False,                        # Desactiva el guardado automático de contraseñas
-        "profile.password_manager_enabled": False,                  # Desactiva el gestor de contraseñas
-        "profile.default_content_setting_values.local_network": 1,  # Evita el popup de red local permitiendo sin prompt
-        "profile.default_content_setting_values.notifications": 2,  # Desactiva notificaciones
+    # Prefs simplificados siguiendo helpers de Duplicacion
+    prefs = {
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False,
+        # Evita el popup de red local permitiendo sin prompt
+        "profile.default_content_setting_values.local_network": 1,
     }
+    chrome_options.add_experimental_option("prefs", prefs)
 
-    chrome_options.add_experimental_option("prefs", chrome_prefs)
+    driver = webdriver.Chrome(service=WD, options=chrome_options)
 
-    driver = webdriver.Chrome (service=WD, options=chrome_options)
+    # Otorga permiso de red local al origen de D2L para minimizar prompts.
+    try:
+        driver.execute_cdp_cmd(
+            "Browser.grantPermissions",
+            {
+                "origin": "https://virtual.upb.edu.co",
+                "permissions": [
+                    "local-network",
+                ],
+            },
+        )
+    except Exception:
+        # Si falla (versiones antiguas), continuamos con los prefs.
+        pass
+
     driver.implicitly_wait(40)
-
     return driver
 
 #ingresar a la pagina de login
-def login(ldriver, usr, pwd, dfa):
+def login(ldriver, usr, pwd):
     try:
         # get the login page
         ldriver.get("https://virtual.upb.edu.co/d2l/login?noRedirect=1")
@@ -61,19 +74,19 @@ def login(ldriver, usr, pwd, dfa):
         )
 
         # send the credentials
-        username.send_keys(usr)
-        #password.send_keys(pwd)
-        password.send_keys("2/2*2Hijosmemsam")
+        username.send_keys("adminbot")
+        password.send_keys("*Upb/ÑV1rtu4l*")
+        #password.send_keys("2/2*2Hijosmemsam")
         password.send_keys(Keys.RETURN)
 
         #2FA
-        ldriver.get("https://virtual.upb.edu.co/d2l/lp/auth/twofactorauthentication/TwoFactorCodeEntry.d2l")
+        """ldriver.get("https://virtual.upb.edu.co/d2l/lp/auth/twofactorauthentication/TwoFactorCodeEntry.d2l")
         
         l2fa = WebDriverWait(ldriver, 3).until(
             EC.presence_of_element_located((By.ID, "z_i"))
         )
         l2fa.send_keys(dfa)
-        l2fa.send_keys(Keys.RETURN)
+        l2fa.send_keys(Keys.RETURN)"""
 
         sleep(3)
 
@@ -98,6 +111,37 @@ def check_user_file(agente):
         and "FECHAFINAL" in columns
     )
 
+# Formatea fechas según idioma detectado en la página (inglés vs resto)
+def _fmt_fecha_por_idioma(fecha, language):
+    if pd.isna(fecha):
+        return ""
+    fecha_dt = pd.to_datetime(fecha)
+    if str(language).lower().startswith("en"):
+        return fecha_dt.strftime("%m/%d/%Y")
+    return fecha_dt.strftime("%Y-%m-%d")
+
+def _to_date_from_page(value, language):
+    if not value:
+        return None
+    try:
+        fmt = "%m/%d/%Y" if str(language).lower().startswith("en") else "%Y-%m-%d"
+        return datetime.strptime(value.strip(), fmt).date()
+    except Exception:
+        try:
+            return pd.to_datetime(value, errors="coerce").date()
+        except Exception:
+            return None
+
+def _fechas_iguales(valor_pagina, fecha_excel, language):
+    try:
+        excel_dt = pd.to_datetime(fecha_excel).date()
+    except Exception:
+        return False
+    pagina_dt = _to_date_from_page(valor_pagina, language)
+    if pagina_dt is None or excel_dt is None:
+        return False
+    return pagina_dt == excel_dt
+
 #************************************************************************
 #Gestion de los agentes : habilitar, fecha inicio y fecha final
 #************************************************************************
@@ -112,75 +156,75 @@ def setdataAgen(ldriver, dlrow):
     language = ldriver.find_element(By.CSS_SELECTOR, "html").get_attribute("lang")
 
     try:
+        cambios_realizados = False
         #**********************
         #datos del agente
         #**********************
-        #field 1 - activar agente
+        #field 1 - activar agente si está desactivado
         checkBox = WebDriverWait(ldriver, 10).until(EC.element_to_be_clickable((By.XPATH, '//input[@id="detailsData$Status"]')))
         checkBoxestado = checkBox.get_attribute('checked')
-  
-        #solo se activan los agentes que esten es estado desactivados
-        if str(checkBoxestado)=="None":
-             
+        if str(checkBoxestado) == "None":
             ldriver.execute_script("arguments[0].click();", checkBox)
+            cambios_realizados = True
 
-            #Encuentra el elemento que contiene el shadow root utilizando el selector CSS
-            planea_title = 'Planificación' if language == "es-MX" else 'Scheduling'
-            planeacion0 = ldriver.find_element(By.CSS_SELECTOR, f"d2l-collapsible-panel[type='default'][class='d2l-collapsible-panel'][panel-title='{planea_title}']")
-
-            #Obtiene el shadow root a apartir de la seccion colapsada de planeacion
-            planeacion1 = ldriver.execute_script('return arguments[0].shadowRoot', planeacion0)
-
-            # Encuentra y realiza una acción con el elemento dentro del shadow root (clic para abrir)
-            expanplan = planeacion1.find_element(By.CSS_SELECTOR, "d2l-icon-custom[class='d2l-skeletize']")
+        #Encuentra el panel de planeación (si ya estaba abierto no lo cierra)
+        planea_title = 'Planificación' if language == "es-MX" else 'Scheduling'
+        planeacion0 = ldriver.find_element(By.CSS_SELECTOR, f"d2l-collapsible-panel[type='default'][class='d2l-collapsible-panel'][panel-title='{planea_title}']")
+        expanded_flag = planeacion0.get_attribute("expanded") or planeacion0.get_attribute("aria-expanded")
+        if not expanded_flag or str(expanded_flag).lower() in ("false", "0"):
+            planeacion1_tmp = ldriver.execute_script('return arguments[0].shadowRoot', planeacion0)
+            expanplan = planeacion1_tmp.find_element(By.CSS_SELECTOR, "d2l-icon-custom[class='d2l-skeletize']")
             ldriver.execute_script("arguments[0].click();", expanplan)
 
-            #field 2
-            #activar fecha de inicio
-            checkBox = WebDriverWait(ldriver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#schedulingData\$HasStartDate')))
-            ldriver.execute_script("arguments[0].click();", checkBox)
-            sleep(1)
-            
-            #Obtener fecha de inicio
-            fini = ldriver.execute_script('return document.querySelector("d2l-input-date").shadowRoot.querySelector("d2l-input-text").shadowRoot.querySelector("input")')
-        
-            #field 3
-            #activar fecha de final
-            checkBox = WebDriverWait(ldriver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#schedulingData\$HasEndDate')))
-            ldriver.execute_script("arguments[0].click();", checkBox)
-            sleep(2)
+        # Activa fechas (solo si están desactivadas)
+        start_checkbox = WebDriverWait(ldriver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, r'#schedulingData\$HasStartDate')))
+        if start_checkbox.get_attribute("checked") is None:
+            ldriver.execute_script("arguments[0].click();", start_checkbox)
+            cambios_realizados = True
+        sleep(1)
 
-            #fecha de final
-            wait=WebDriverWait(ldriver, 10)
-            root1 = wait.until(EC.presence_of_element_located((By.XPATH , '(//d2l-input-date[@id="schedulingData$EndDate"])[1]')))
-            root11 = ldriver.execute_script('return arguments[0].shadowRoot', root1)
+        end_checkbox = WebDriverWait(ldriver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, r'#schedulingData\$HasEndDate')))
+        if end_checkbox.get_attribute("checked") is None:
+            ldriver.execute_script("arguments[0].click();", end_checkbox)
+            cambios_realizados = True
+        sleep(2)
 
-            root2 = root11.find_element(By.CLASS_NAME, "d2l-dropdown-opener")
-            root22 = ldriver.execute_script('return arguments[0].shadowRoot', root2)
-        
-            #Obtener fecha de inicio
-            ffin=root22.find_element(By.CSS_SELECTOR,"input[id^='d2l-uid']")
+        # Inputs de fecha inicio y fin (siempre se actualizan con el Excel)
+        fini = ldriver.execute_script('return document.querySelector("d2l-input-date").shadowRoot.querySelector("d2l-input-text").shadowRoot.querySelector("input")')
 
-            #SE LIMPIA EL CAMPO DE FECHA FINAL Y INICIAL
+        wait=WebDriverWait(ldriver, 10)
+        root1 = wait.until(EC.presence_of_element_located((By.XPATH , '(//d2l-input-date[@id="schedulingData$EndDate"])[1]')))
+        root11 = ldriver.execute_script('return arguments[0].shadowRoot', root1)
+        root2 = root11.find_element(By.CLASS_NAME, "d2l-dropdown-opener")
+        root22 = ldriver.execute_script('return arguments[0].shadowRoot', root2)
+        ffin = root22.find_element(By.CSS_SELECTOR,"input[id^='d2l-uid']")
+
+        fecha_inicio = _fmt_fecha_por_idioma(dlrow["FECHAINICIO"], language)
+        fecha_final = _fmt_fecha_por_idioma(dlrow["FECHAFINAL"], language)
+
+        current_inicio = (fini.get_attribute("value") or "").strip()
+        current_final = (ffin.get_attribute("value") or "").strip()
+
+        if not _fechas_iguales(current_inicio, dlrow["FECHAINICIO"], language):
             fini.clear()
-            ffin.clear()
-
-            # Convertir los fechas Timestamp a cadenas en el formato YYYY-MM-DD
-            fecha_inicio = dlrow["FECHAINICIO"].strftime("%Y-%m-%d")
-            fecha_final = dlrow["FECHAFINAL"].strftime("%Y-%m-%d")
-    
-            #SET FECHA INICIAL Y FINAL
             fini.send_keys(fecha_inicio)
+            cambios_realizados = True
+        if not _fechas_iguales(current_final, dlrow["FECHAFINAL"], language):
+            ffin.clear()
             ffin.send_keys(fecha_final)
+            cambios_realizados = True
     
-        #guardar y cerrar
-        boton_texto = 'Guardar y Cerrar' if language == 'es-MX' else 'Save and Close'
-        guardar_cerrar_btn = wait.until(EC.element_to_be_clickable(
-                (By.XPATH, f"//button[contains(@class, 'd2l-button') and contains(text(), '{boton_texto}')]")
-            ))
-        
-        guardar_cerrar_btn.click()
-        sleep(5)    
+        #guardar y cerrar solo si hubo cambios
+        if cambios_realizados:
+            boton_texto = 'Guardar y Cerrar' if language == 'es-MX' else 'Save and Close'
+            guardar_cerrar_btn = wait.until(EC.element_to_be_clickable(
+                    (By.XPATH, f"//button[contains(@class, 'd2l-button') and contains(text(), '{boton_texto}')]")
+                ))
+            
+            guardar_cerrar_btn.click()
+            sleep(10)
+        else:
+            print("El agente estaba correctamente configurado, no se hizo ninguna actualización.")
 
     except TimeoutException:
          print("Un elemento no se encontró dentro del tiempo estimado.")
@@ -202,7 +246,7 @@ def CambiotipoAgen(ldriver, dlrow):
     #datos del agente
     #*********************************
     #selector de frecuencia - diario
-    cfre = WebDriverWait(ldriver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#schedulingData\$ScheduleFrequency")))
+    cfre = WebDriverWait(ldriver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, r"#schedulingData\$ScheduleFrequency")))
     selerolobj=Select(cfre)
     selerolobj.select_by_value('Daily')
     #print("frecuencia")
@@ -353,12 +397,12 @@ def CambioAgenteDocente(ldriver, dlrow, NuevoHTML):
     #"""
     #cambiar datos del correo
     #Para:
-    Para=ldriver.find_element(By.CSS_SELECTOR,"#actionsData\$To")
+    Para=ldriver.find_element(By.CSS_SELECTOR, r"#actionsData\$To")
     Para.clear()
     Para.send_keys("soporte.upbvirtual@upb.edu.co")
 
     #CC:
-    CC=ldriver.find_element(By.CSS_SELECTOR,"#actionsData\$Cc")
+    CC=ldriver.find_element(By.CSS_SELECTOR, r"#actionsData\$Cc")
     CC.clear()
     #"""
  

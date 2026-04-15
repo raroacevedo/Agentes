@@ -56,9 +56,35 @@ def create_chrome_driver():
     #chrome_options.add_argument("--headless")
     chrome_options.add_argument("--log-level=3")
 
+    # Permitir red local sin prompt y desactivar gestor de contraseñas
+    chrome_options.add_experimental_option(
+        "excludeSwitches", ["enable-logging", "enable-automation"]
+    )
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+    chrome_options.add_experimental_option(
+        "prefs",
+        {
+            "credentials_enable_service": False,
+            "profile.password_manager_enabled": False,
+            "profile.default_content_setting_values.local_network": 1,
+        },
+    )
+
     # instantiate the webdriver
     driver = webdriver.Chrome(service=s, options=chrome_options)
     driver.implicitly_wait(20)
+
+    # Otorga permiso de red local al origen de D2L para minimizar prompts
+    try:
+        driver.execute_cdp_cmd(
+            "Browser.grantPermissions",
+            {
+                "origin": "https://virtual.upb.edu.co",
+                "permissions": ["local-network"],
+            },
+        )
+    except Exception:
+        pass
 
     return driver
 

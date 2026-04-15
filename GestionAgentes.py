@@ -8,8 +8,8 @@ def obtener_credenciales():
     """Captura de credenciales del usuario de forma segura."""
     usuario = input("Ingresar usuario: ")
     contrasena = getpass("Ingresar contraseña: ")
-    clave_2fa = input("Clave 2FA: ")
-    return usuario, contrasena, clave_2fa
+    #clave_2fa = input("Clave 2FA: ")
+    return usuario, contrasena #clave_2fa
 
 #cargar datos desde un archivo Excel
 def cargar_datos(ruta_archivo):
@@ -39,11 +39,11 @@ def gestionar_agentes(driver, agentes):
 def main():
     ruta_archivo = "agentes.xlsx"
 
-    usuario, contrasena, clave_2fa = obtener_credenciales()
+    usuario, contrasena= obtener_credenciales()
 
     driver = classadd.crear_WebDriver()
 
-    classadd.login(driver, usuario, contrasena, clave_2fa)
+    classadd.login(driver, usuario, contrasena)
     
     agentes = cargar_datos(ruta_archivo)
     print("\n-------------------------------")  
